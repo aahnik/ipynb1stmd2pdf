@@ -1,6 +1,6 @@
 *.png
 *.tex
-temp*.*
+temp_*.*
 
 
 # Byte-compiled / optimized / DLL files
