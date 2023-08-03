@@ -4,7 +4,7 @@ import os
 import random
 import string
 from pathlib import Path
-
+import time
 
 st.title("PDF Generator")
 
@@ -15,8 +15,7 @@ st.write("Make sure that the link you are sharing is visible by anyone")
 process_btn = st.button("Process link")
 
 if process_btn:
-    st.write("button clicked")
-    st.write(f"Processing {inp_link}")
+    st.write(f"Processing `{inp_link}`")
     files = ut.get_files_from_drive_folder(inp_link)
     uprocid = "".join(
         random.choices(string.ascii_uppercase + string.ascii_lowercase, k=7)
@@ -53,10 +52,11 @@ if process_btn:
 
         ut.write_md(markdown, md_path)
         ut.pandoc_gen_pdf(md_path, pdf_path)
-        count += (1 / size)
+        count += 1 / size
         my_bar.progress(count, text=f"PDF created for {file_name}")
         os.remove(md_path)
     with st.spinner("Zipping files"):
+        time.sleep(2)
         zip_path = ut.zip_pdfs(uprocid, unique_proc_dir)
     with open(zip_path, "rb") as file:
         st.download_button(
