@@ -5,7 +5,7 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y --no-install-recommends apt-utils && \
     apt-get upgrade -y && \
-    apt-get install pandoc texlive-full zip -y && \
+    apt-get install pandoc texlive-latex-base texlive-latex-extra zip -y && \
     apt-get autoclean
 RUN python -m venv /venv
 COPY . .
