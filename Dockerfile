@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.11
 ENV VENV_PATH="/venv"
 ENV PATH="$VENV_PATH/bin:$PATH"
 WORKDIR /app
