@@ -38,11 +38,14 @@ def ipynb1md(fpath):
 
 def get_md_from_file(file_name, file_id, usage_dir) -> str:
     """Returns markdown from the given file_name and file_id of colab file in g-drive"""
-    file_download_url = f"https://drive.google.com/uc?id={file_id}"
+    file_download_url = (
+        f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media&key={API_KEY}"
+    )
     temp_file_path = Path(usage_dir) / f"{file_name}.ipynb"
     status = download_file(file_download_url, temp_file_path)
     if not status:
-        return status
+        print("Failed to download file! ")
+        return None
     markdown_content = ipynb1md(temp_file_path)
     os.remove(temp_file_path)
     return markdown_content
@@ -70,26 +73,32 @@ def get_files_from_drive_folder(folder_link: str):
     files_response = requests.get(
         f"https://www.googleapis.com/drive/v3/files?q='{folder_id}'+in+parents&fields=files(id,name)&key={API_KEY}"
     )
+    print(files_response.status_code)
+    print(files_response.content)
     files_data = files_response.json()
     return files_data["files"]
 
 
 def main():
-    folder_link = input("Enter folder link: ")
+    folder_link = config("FOLDER_LINK_TEST")
+    print(f"Folder Link: {folder_link}")
     files_data = get_files_from_drive_folder(folder_link)
     print(files_data)
     input("continue ?")
     unique_proc_dir = Path(WORK_ROOT) / "".join(
         random.choices(string.ascii_uppercase + string.ascii_lowercase, k=7)
     )
-
+    os.makedirs(WORK_ROOT, exist_ok=True)
     os.mkdir(unique_proc_dir)
     print("Process dir: ", unique_proc_dir)
 
     for file_info in files_data:
         file_id = file_info["id"]
-        file_name = os.path.basename(file_info["name"])
+        file_name = os.path.basename(file_info["name"]).split(".")[0]
         markdown = get_md_from_file(file_name, file_id, usage_dir=unique_proc_dir)
+        if not markdown:
+            print("Error... could not fetch markdown!")
+            continue
 
         md_path = Path(unique_proc_dir) / f"{file_name}.md"
         pdf_path = Path(unique_proc_dir) / f"{file_name}.pdf"
