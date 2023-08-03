@@ -102,7 +102,7 @@ def main():
     for file_info in files_data:
         file_id = file_info["id"]
         file_name, file_ext = os.path.basename(file_info["name"]).split(".")
-        if file_ext != ".ipynb":
+        if file_ext != "ipynb":
             continue
         markdown = get_md_from_file(file_name, file_id, usage_dir=unique_proc_dir)
         if not markdown:

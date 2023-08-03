@@ -5,13 +5,11 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y --no-install-recommends apt-utils && \
     apt-get upgrade -y && \
-    apt-get install pandoc texlive-full -y && \
+    apt-get install pandoc texlive-full zip -y && \
     apt-get autoclean
-RUN pip install --upgrade poetry
 RUN python -m venv /venv
 COPY . .
-RUN poetry build && \
-    /venv/bin/pip install --upgrade pip wheel setuptools &&\
+RUN /venv/bin/pip install --upgrade pip wheel setuptools &&\
     /venv/bin/pip install -r requirements.txt
 EXPOSE 80
 CMD streamlit run app.py --server.port 80
