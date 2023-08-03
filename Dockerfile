@@ -13,5 +13,5 @@ COPY . .
 RUN poetry build && \
     /venv/bin/pip install --upgrade pip wheel setuptools &&\
     /venv/bin/pip install -r requirements.txt
-EXPOSE 8000
-CMD ./app.py
+EXPOSE 80
+CMD streamlit run app.py --server.port 80
