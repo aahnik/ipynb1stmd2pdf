@@ -1,0 +1,4 @@
+nbformat
+requests
+streamlit
+python-decouple
