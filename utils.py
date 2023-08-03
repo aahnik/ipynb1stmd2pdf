@@ -14,6 +14,7 @@ WORK_ROOT = "work"
 
 
 def download_file(url, destination) -> bool:
+    print(f"Trying to download {url}")
     response = requests.get(url)
     if response.status_code != 200:
         print(response.status_code)
@@ -60,6 +61,11 @@ def pandoc_gen_pdf(md_path, pdf_path):
     os.system(f"pandoc {md_path} -o {pdf_path} --template={LATEX_TEMPLATE_PATH}")
 
 
+def zip_pdfs(zip_name, parent_dir) -> str:
+    os.system(f"cd {parent_dir} && zip {zip_name}.zip *.pdf")
+    return Path(parent_dir) / f"{zip_name}.zip"
+
+
 def extract_last_path_param(url):
     parsed_url = urlparse(url)
     path = parsed_url.path.strip("/").split("/")
@@ -85,16 +91,19 @@ def main():
     files_data = get_files_from_drive_folder(folder_link)
     print(files_data)
     input("continue ?")
-    unique_proc_dir = Path(WORK_ROOT) / "".join(
+    uprocid = "".join(
         random.choices(string.ascii_uppercase + string.ascii_lowercase, k=7)
     )
+    unique_proc_dir = Path(WORK_ROOT) / uprocid
     os.makedirs(WORK_ROOT, exist_ok=True)
     os.mkdir(unique_proc_dir)
     print("Process dir: ", unique_proc_dir)
 
     for file_info in files_data:
         file_id = file_info["id"]
-        file_name = os.path.basename(file_info["name"]).split(".")[0]
+        file_name, file_ext = os.path.basename(file_info["name"]).split(".")
+        if file_ext != ".ipynb":
+            continue
         markdown = get_md_from_file(file_name, file_id, usage_dir=unique_proc_dir)
         if not markdown:
             print("Error... could not fetch markdown!")
@@ -106,6 +115,8 @@ def main():
         write_md(markdown, md_path)
         pandoc_gen_pdf(md_path, pdf_path)
         os.remove(md_path)
+    zip_path = zip_pdfs(uprocid, unique_proc_dir)
+    print(zip_path)
 
 
 if __name__ == "__main__":
